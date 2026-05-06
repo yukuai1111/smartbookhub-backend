@@ -4,12 +4,12 @@ const url='mongodb://127.0.0.1:27017'
 //数据库名字
 const dbName='smartbookhub'
 //缓存数据库连接实例
-let casheDb=null
+let cachedDb=null
 
 const getDb=async ()=>{
     //如果一开始就有数据库实例，就复用
-    if(casheDb){
-        return casheDb
+    if(cachedDb){
+        return cachedDb
     }
     try{
  //没有的话就连接数据库
@@ -21,9 +21,9 @@ const getDb=async ()=>{
     //获取数据库连接实例
     const db=client.db(dbName)    //连接到指定的数据库
     //把获取的数据库实例给缓存
-    casheDb=db
+    cachedDb=db
     //返回数据库实例
-    return casheDb
+    return cachedDb
     }
     catch(err){
         console.log('数据库连接失败',err)
