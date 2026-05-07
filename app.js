@@ -27,8 +27,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //静态资源
-app.use('/smartbookhub-backend/public/image', express.static('public/image'))    //路径就会变成http://localhost:3000/1/smartbookhub-backend/public/image/xxxx 
-app.use('/smartbookhub-backend/uploads', express.static('uploads'))    //路径就会变成http://localhost:3000/1/smartbookhub-backend/uploads/xxxx 
+app.use('/smartbookhub-backend/public/image', express.static('public/image'))    //路径就会变成http://localhost:3000/smartbookhub-backend/public/image/xxxx 
+app.use('/smartbookhub-backend/uploads', express.static('uploads'))    //路径就会变成http://localhost:3000/smartbookhub-backend/uploads/xxxx 
 //url的前缀可以是任意的，前端和后端统一就行
  
 //引入中间件

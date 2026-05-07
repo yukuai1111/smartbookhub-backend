@@ -51,12 +51,12 @@ router.get('/article-all-list', async (req, res) => {
 })
 
 //获取推荐文章详情的接口
-router.get('/article-recommend-detail',async (req, res) => {
+router.get('/article-recommend-detail', async (req, res) => {
     const id = req.query.id
     //读取数据库
-    const db=await getDb()
-    const articleCollection=db.collection('articles')
-    const article =await articleCollection.findOne({id})
+    const db = await getDb()
+    const articleCollection = db.collection('articles')
+    const article = await articleCollection.findOne({ id })
     // console.log(article)   //对象
     if (!article) {
         res.json({ code: '400', msg: '文章不存在', success: false })
@@ -64,11 +64,11 @@ router.get('/article-recommend-detail',async (req, res) => {
     }
 
     // 增加阅读量
-    let num = Number(article.readCount)+1
+    let num = Number(article.readCount) + 1
     //更新数据库的阅读量
-    await articleCollection.updateOne({id},{$set:{readCount:String(num)}})
+    await articleCollection.updateOne({ id }, { $set: { readCount: String(num) } })
     //手动更新页面阅读量+1
-    article.readCount=num
+    article.readCount = num
     res.json({ code: '200', msg: '获取文章详情成功', data: article, success: true })
 
 })
@@ -76,19 +76,19 @@ router.get('/article-recommend-detail',async (req, res) => {
 //获取全部文章详情接口
 router.get('/article-all-detail', async (req, res) => {
     const id = req.query.id
-    const db=await getDb()
-    const articleCollection=db.collection('articles')
-    const article=await articleCollection.findOne({id})
+    const db = await getDb()
+    const articleCollection = db.collection('articles')
+    const article = await articleCollection.findOne({ id })
     if (!article) {
         res.json({ code: '400', msg: '文章不存在', success: false })
         return
     }
     // 增加阅读量
-    let num = Number(article.readCount)+1
+    let num = Number(article.readCount) + 1
     //更新数据库的阅读量
-    await articleCollection.updateOne({id},{$set:{readCount:String(num)}})
+    await articleCollection.updateOne({ id }, { $set: { readCount: String(num) } })
     //手动更新页面阅读量+1
-    article.readCount=num
+    article.readCount = num
     res.json({ code: '200', msg: '获取文章详情成功', data: article, success: true })
 })
 
@@ -101,18 +101,20 @@ router.post('/ai-save-new-conversation', async (req, res) => {
     const endTime = req.body.endTime
     const id = shortid.generate()   //唯一的标识
     // console.log(username, messages, startTime, endTime)
-
+    //生成标题
+    const title = await generateTitle(messages)
+    console.log("生成的title:", title)
     //创建数据库实例
     const db = await getDb()
     //获取用户集合
     const userCollection = db.collection('users')
 
     //读取数据库，保存对应用户的消息
-    const user =await userCollection.findOne({username})
-   
+    const user = await userCollection.findOne({ username })
+
     //保存对话记录
-    user.conversation.push({ id, messages, startTime, endTime })
-    await userCollection.updateOne({username},{$set:{conversation:user.conversation}})
+    user.conversation.push({ id, messages, startTime, endTime ,title})
+    await userCollection.updateOne({ username }, { $set: { conversation: user.conversation } })
     res.json({ code: '200', msg: '保存对话记录成功', success: true })
 
 })
@@ -124,48 +126,52 @@ router.post('/ai-save-old-conversation', async (req, res) => {
     const endTime = req.body.endTime
     const id = req.body.id
     // console.log(username, messages, endTime, id)
+    //生成标题
+    const title = await generateTitle(messages)
+    console.log("更新的title:", title)
     const db = await getDb()
     const userCollection = db.collection('users')
     //读取数据库，找用户
-    const user =await userCollection.findOne({username})
-   
+    const user = await userCollection.findOne({ username })
+
     //读取数据库，找对话
-    const conversation =user.conversation.find(item=>item.id===id)
+    const conversation = user.conversation.find(item => item.id === id)
     if (!conversation) {
         res.json({ code: '400', msg: '对话记录不存在！', success: false })
         return
     }
     //更新对话记录
+    conversation.title = title   //更新标题
     conversation.messages = messages
     conversation.endTime = endTime
-   await userCollection.updateOne({username},{$set:{conversation:user.conversation}})
-    res.json({ code: '200', msg: '保存对话记录成功', success: true })
+    await userCollection.updateOne({ username }, { $set: { conversation: user.conversation } })
+    res.json({ code: '200', msg: '保存对话记录成功',success: true })
 })
 
 //获取对话记录列表接口
-router.get('/ai-conversation-list',async (req, res) => {
+router.get('/ai-conversation-list', async (req, res) => {
     const username = req.query.username
     // console.log(username)
-    const db=await getDb()
-    const userCollection=db.collection('users')
-    const user=await userCollection.findOne({username})
+    const db = await getDb()
+    const userCollection = db.collection('users')
+    const user = await userCollection.findOne({ username })
     // console.log(user)
-   
-    const list =user.conversation || []
+
+    const list = user.conversation || []
     // console.log(list)   //数组
     res.json({ code: '200', msg: '获取对话记录成功', data: list, success: true })
 })
 
 //获取对话记录详情接口
-router.get('/ai-conversation-detail',async (req, res) => {
+router.get('/ai-conversation-detail', async (req, res) => {
     const id = req.query.id
     const username = req.query.username
     // console.log(id,username)
-    const db=await getDb()
-    const userCollection=db.collection('users')
-    const user=await userCollection.findOne({username})
+    const db = await getDb()
+    const userCollection = db.collection('users')
+    const user = await userCollection.findOne({ username })
     // console.log(user)
-    const conversation = user.conversation.find(item=>item.id===id)
+    const conversation = user.conversation.find(item => item.id === id)
     if (!conversation) {
         res.json({ code: '400', msg: '对话记录不存在！', success: false })
         return
@@ -200,7 +206,7 @@ router.post('/ai-get-reply', async (req, res) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 model,
-                messages: ollamaMessages,
+                messages: ollamaMessages,   //用户消息
                 stream: true,
                 option: {
                     num_predict: 256,
@@ -245,23 +251,62 @@ router.post('/ai-get-reply', async (req, res) => {
 })
 
 //删除历史会话接口
-router.post('/ai-delete',async (req,res)=>{
+router.post('/ai-delete', async (req, res) => {
     const { username, id } = req.body
-    const db=await getDb()
-    const userCollection=db.collection('users')
-    const user=await userCollection.findOne({username})
-    const conversation=user.conversation.find(item=>item.id===id)
-    if(!conversation){
+    const db = await getDb()
+    const userCollection = db.collection('users')
+    const user = await userCollection.findOne({ username })
+    const conversation = user.conversation.find(item => item.id === id)
+    if (!conversation) {
         res.json({ code: '400', msg: '对话记录不存在！', success: false })
         return
     }
     //删除记录
     //去掉id相同的会话，就是再筛选id不同的会话
-    user.conversation=user.conversation.filter(item=>item.id!==id)
+    user.conversation = user.conversation.filter(item => item.id !== id)
     //更新数据库
-    await userCollection.updateOne({username},{$set:{conversation:user.conversation}})
+    await userCollection.updateOne({ username }, { $set: { conversation: user.conversation } })
     res.json({ code: '200', msg: '删除对话记录成功', success: true })
 })
 
+//生成对话标题
+async function generateTitle(messages) {
+    //遍历每一个messages，把content提出来，拼成字符串
+    const content = messages.map(item => item.content).join('\n')
+    const prompt = `根据以下对话内容，生成一个简短标题（5-12个字）(只要标题，不要其他内容，不要包含"标题"这两个字)：  \n对话：${content}`
+    //调用AI
+    try {
+        const response = await fetch("http://localhost:11434/api/generate", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'qwen:0.5b',
+                prompt,
+                stream: false,
+                options: {
+                    num_predict: 30,
+                }
+            })
+        })
+        if (!response.ok) {
+            throw new Error('调用ollama失败' + response.status)
+        }
+        //解析JSON格式
+        const data = await response.json()
+        // console.log('生成标题原始数据：', data)
+        let title=await data.response?.trim()||'新对话'
+        // console.log('生成标题成功：', title)
+        if(title.length>=12){
+            title=title.slice(0,12)
+        }
+        return title
+
+    }
+    catch (err) {
+        console.log('生成标题失败：', err)
+        return '新对话'
+    }
+
+}
 //暴露路由
 module.exports = router

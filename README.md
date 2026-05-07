@@ -31,6 +31,8 @@
 
 - Node.js v18.x 或更高版本
 - MongoDB（本地安装并启动服务）
+- Ollama（本地安装并启动服务）
+
 
 ### 步骤
 
@@ -60,16 +62,33 @@
 mongod --dbpath D:\mongodb-data   # D盘mongodb-data文件夹为数据存放文件夹
 
 ```
-
 **macOS/Linux示例**
 ```bash
 sudo systemctl start mongod #或直接运行mongod
 ```
 
-5. 启动后端服务
+5. 启动Ollama服务
+** 首次运行时，需下载模型**
+```bash
+ollama run qwen:o.5b
+   ```
+> 这里使用的是qwen:o.5b模型，如更换其他模型，在front.js中修改model变量。
+
+** 后续运行时，无需下载模型，直接启动服务即可**
+```bash
+ollama serve
+```
+> 如不需要AI功能，项目也可运行，但无法使用AI对话助手。
+
+6. 启动后端服务
    ```bash
    npm start  #或node app.js
    ```
+
+### 默认管理员账号
+首次启动后端服务时，系统会自动初始化一个管理员账号
+- **用户名**：admin
+- **密码**：123456
 
 
 ## 📡 接口示例
