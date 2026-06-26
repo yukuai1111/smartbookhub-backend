@@ -65,7 +65,6 @@ router.post('/register', async (req, res) => {
     //获取用户集合
     const userCollection = db.collection('users')
 
-    // console.log(db.get('users').value())
 
     //用户存在与否判断
     const user = await userCollection.findOne({ username })

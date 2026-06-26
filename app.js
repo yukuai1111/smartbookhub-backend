@@ -14,7 +14,8 @@ app.use('/default', express.static('public/image'))    //路径就会变成http:
 app.use('/cover', express.static('uploads'))    //路径就会变成http://localhost:3000/cover/xxxx ，会自动去根目录下的uploads里找
 //url的前缀可以是任意的，前端和后端统一就行
  
-//引入中间件
+
+//引入中间件（检验token）
 const tokenMiddle = require('./middleWare/tokenMiddle.js')
 
 

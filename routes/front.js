@@ -106,7 +106,7 @@ router.get('/article-all-detail', async (req, res) => {
         // 增加阅读量
         let num = Number(article.readCount) + 1
         //更新数据库的阅读量
-        await articleCollection.updateOne({ id }, { $set: { readCount: String(num) },$push:{userIds:userId} })
+        await articleCollection.updateOne({ id }, { $set: { readCount: String(num) }, $push: { userIds: userId } })
         //手动更新页面阅读量+1
         article.readCount = num
         res.json({ code: '200', msg: '获取文章详情成功', data: article, success: true })
@@ -332,21 +332,31 @@ async function generateTitle(messages) {
 
 
 //注销账号
-router.post('/remove-account',async (req,res)=>{
-    const {userId}=req.body
+router.post('/remove-account', async (req, res) => {
+    const { userId } = req.body
     console.log(userId)
-    const db=await getDb()
-    const userCollection=db.collection('users')
-    const user=await userCollection.findOne({id:userId})
+    const db = await getDb()
+    const userCollection = db.collection('users')
+    const user = await userCollection.findOne({ id: userId })
     console.log(user)
-    if(!user){
-        res.json({code:'200',msg:'用户不存在！',success:false})
+    if (!user) {
+        res.json({ code: '200', msg: '用户不存在！', success: false })
         return
     }
+    
     //存在就从数据库里删除
-   //删除用户文档
-   await userCollection.deleteOne({id:userId})
-   res.json({code:'200',msg:'用户删除成功！',success:true})
+    //删除用户文档
+       await userCollection.deleteOne({id:userId})
+
+    //把文章里的对应的userid也去掉
+    const articles = await db.collection('articles')
+    .updateMany(
+        {},   //匹配所有文章
+        { $pull: { userIds: userId } })    //删除每一个文章里userIds里为userId的数据
+    console.log(articles, '更新')
+
+
+    res.json({ code: '200', msg: '用户删除成功！', success: true })
 })
 
 //暴露路由
