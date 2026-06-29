@@ -26,10 +26,10 @@ const frontRouter = require('./routes/front.js')
 const userInfoRouter = require('./routes/userinfo.js')
 
 //挂载路由
-app.use('/user', logRegRouter)      //登陆注册不需要验证token
-app.use('/admin', tokenMiddle, adminRouter)
-app.use('/front', tokenMiddle, frontRouter)
-app.use('/user-info', tokenMiddle, userInfoRouter)
+app.use('/smartbookhub-api/user', logRegRouter)      //登陆注册不需要验证token
+app.use('/smartbookhub-api/admin', tokenMiddle, adminRouter)
+app.use('/smartbookhub-api/front', tokenMiddle, frontRouter)
+app.use('/smartbookhub-api/user-info', tokenMiddle, userInfoRouter)
 
 
 // //监听

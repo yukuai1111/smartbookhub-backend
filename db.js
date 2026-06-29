@@ -10,7 +10,7 @@ let cachedDb = null
 async function initAdmin(db){
     //获取用户集合
     const usersCollection=db.collection('users')
-    //查询是否有管理员账号
+    //查询是否有管理员账号 
    const admin=await usersCollection.findOne({username:'admin'})
     //如果没有，就增加管理员账号
     if(!admin){
