@@ -10,10 +10,10 @@ let cachedDb = null
 async function initAdmin(db){
     //获取用户集合
     const usersCollection=db.collection('users')
-    //查询用户个数 document的个数
-    const count =await usersCollection.countDocuments()
-    //如果是0，就增加管理员账号
-    if(count===0){
+    //查询是否有管理员账号
+   const admin=await usersCollection.findOne({username:'admin'})
+    //如果没有，就增加管理员账号
+    if(!admin){
       await usersCollection.insertOne({
             id:'admin1',
             username:'admin',
